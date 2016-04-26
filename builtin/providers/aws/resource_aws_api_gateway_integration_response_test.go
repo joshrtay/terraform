@@ -45,6 +45,9 @@ func testAccCheckAWSAPIGatewayIntegrationResponseAttributes(conf *apigateway.Int
 		if *conf.ResponseTemplates["application/xml"] != "#set($inputRoot = $input.path('$'))\n{ }" {
 			return fmt.Errorf("wrong ResponseTemplate for application/xml")
 		}
+		if *conf.ResponseParameters["method.response.header.Content-Type"] != "integration.response.body.type" {
+			return fmt.Errorf("wrong ResponseParameters for header.Content-Type")
+		}
 		return nil
 	}
 }
@@ -144,6 +147,12 @@ resource "aws_api_gateway_method_response" "error" {
   response_models = {
     "application/json" = "Error"
   }
+
+	response_parameters_in_json = <<PARAMS
+	{
+		"method.response.header.Content-Type": true
+	}
+	PARAMS
 }
 
 resource "aws_api_gateway_integration" "test" {
@@ -169,5 +178,11 @@ resource "aws_api_gateway_integration_response" "test" {
     "application/json" = ""
     "application/xml" = "#set($inputRoot = $input.path('$'))\n{ }"
   }
+
+	response_parameters_in_json = <<PARAMS
+	{
+		"method.response.header.Content-Type": "integration.response.body.type"
+	}
+	PARAMS
 }
 `

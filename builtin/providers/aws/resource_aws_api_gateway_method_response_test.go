@@ -46,6 +46,13 @@ func testAccCheckAWSAPIGatewayMethodResponseAttributes(conf *apigateway.MethodRe
 				return fmt.Errorf("wrong application/json ResponseModel")
 			}
 		}
+		if val, ok := conf.ResponseParameters["method.response.header.Content-Type"]; !ok {
+			return fmt.Errorf("missing Content-Type ResponseParameters")
+		} else {
+			if *val != true {
+				return fmt.Errorf("wrong ResponseParameters value")
+			}
+		}
 		return nil
 	}
 }
@@ -145,5 +152,11 @@ resource "aws_api_gateway_method_response" "error" {
   response_models = {
     "application/json" = "Error"
   }
+
+	response_parameters_in_json = <<PARAMS
+	{
+		"method.response.header.Content-Type": true
+	}
+	PARAMS
 }
 `
